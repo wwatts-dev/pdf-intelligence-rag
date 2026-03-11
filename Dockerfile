@@ -19,7 +19,6 @@ COPY . .
 
 # Expose the ports for FastAPI (8000) and Streamlit (8501)
 EXPOSE 8000
-EXPOSE 8501
 
 # Command to run the application (Adjust as needed)
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
