@@ -207,6 +207,11 @@ marimo/_lsp/
 __marimo__/
 
 # --- AI & RAG SPECIFIC ---
-data/               # Ignore raw PDF folders (usually too big for Git)
+ai_cache/           # Local model cache (HuggingFace models)
+faiss_index/        # Generated Vector Database (FAISS index)
 vector_store/       # Ignore local FAISS/Chroma indexes (rebuildable)
+data/               # Ignore raw PDF folders (usually too big for Git)
 *.log               # Ignore your "Thought Tracing" logs
+
+# --- Mac OS SPECIFIC ---
+.DS_Store           # Ignore some cache files that are specific to the OS or hardware (CPU vs GPU) they were downloaded on

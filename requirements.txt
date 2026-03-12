@@ -7,14 +7,14 @@ fastapi==0.129.0
 uvicorn[standard]==0.41.0
 python-multipart==0.0.22
 
-# AI & RAG Orchestration
+# AI & RAG Orchestration (Loosened versions to resolve conflicts)
 groq==0.18.0
-langchain==1.2.10
-langchain-community==0.4.1
-langchain-openai==1.1.10
-langchain-core==1.2.13
+langchain
+langchain-community
+langchain-huggingface
 
 # Vector Database & Embeddings
+sentence-transformers==3.0.1
 faiss-cpu==1.13.2
 pypdf==6.7.1
 python-dotenv==1.2.1
