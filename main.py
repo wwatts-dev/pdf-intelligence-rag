@@ -4,11 +4,16 @@ from fastapi import FastAPI, UploadFile, File, HTTPException
 from groq import Groq
 from dotenv import load_dotenv
 from pypdf import PdfReader
+from pydantic import BaseModel
 
 # --- RAG & AI IMPORTS ---
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+# Create a simple schema for the request body
+class QueryRequest(BaseModel):
+    question: str
 
 # Load variables from .env
 load_dotenv()
@@ -78,3 +83,52 @@ async def upload_pdf(file: UploadFile = File(...)):
     except Exception as e:
         # Provide more specific error feedback
         raise HTTPException(status_code=500, detail=f"RAG Processing Error: {str(e)}")
+
+@app.post("/query")
+async def query_pdf(request: QueryRequest):
+    try:
+        # 1. Verification: Check if the index exists on the M: drive
+        # Inside the container, this is simply the local folder mapped via volumes
+        index_path = "faiss_index"
+        if not os.path.exists(index_path):
+            raise HTTPException(
+                status_code=400, 
+                detail="No PDF index found. Please upload a PDF first to initialize the vector store."
+            )
+        
+        # 2. Load the Vector Store
+        # We use allow_dangerous_deserialization=True because we created the file ourselves
+        vector_store = FAISS.load_local(
+            index_path, 
+            embeddings, 
+            allow_dangerous_deserialization=True
+        )
+
+        # 3. Similarity Search
+        # Find the top 3 most relevant chunks of text from your PDF
+        docs = vector_store.similarity_search(request.question, k=3)
+        context = "\n".join([doc.page_content for doc in docs])
+
+        # 4. Generate Answer via Groq
+        # We provide the AI with the 'Context' and ask it to answer the 'Question'
+        prompt = (
+            f"Use the following pieces of context to answer the question at the end.\n"
+            f"If you don't know the answer based on the context, just say you don't know.\n\n"
+            f"Context:\n{context}\n\n"
+            f"Question: {request.question}\n\n"
+            f"Answer:"
+        )
+        
+        completion = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[{"role": "user", "content": prompt}]
+        )
+
+        return {
+            "answer": completion.choices[0].message.content,
+            "sources": [doc.metadata.get("source", "Unknown") for doc in docs]
+        }
+
+    except Exception as e:
+        print(f"Error during query: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")

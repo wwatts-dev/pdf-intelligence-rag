@@ -10,6 +10,7 @@ services:
       - .:/app
       # use a local relative path and rely on the Junction
       - ./ai_cache:/root/.cache/huggingface
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
   frontend:
     build:

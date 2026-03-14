@@ -1,0 +1,17 @@
+# Ignore the heavy AI models (handled by volumes)
+ai_cache/
+
+# Ignore the local vector database
+faiss_index/
+vector_store/
+
+# Ignore data files
+data/
+tests/test_docs/
+
+# Standard Python ignore
+__pycache__/
+*.pyc
+.venv/
+.git/
+.vscode/
