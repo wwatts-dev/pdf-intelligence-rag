@@ -8,16 +8,17 @@ An automated RAG (Retrieval-Augmented Generation) engine designed for high-accur
 This project implements a scalable pipeline to transform static PDF libraries into a searchable, interactive knowledge base. Unlike simple wrappers, this engine focuses on **retrieval accuracy** and **automated evaluation**.
 This project uses a hybrid architecture: Groq for high-speed inference and local HuggingFace embeddings for cost-effective, private data processing.
 Setup & Infrastructure Note: This project is configured to offload heavy AI model weights and Docker VHDX files to secondary storage (M: drive) to maintain system drive performance.
+NOTE: Docker is required to run this project.
 
 ## 🛠️ Tech Stack
 - **Orchestration:** LangChain
 - **API Framework:** FastAPI
-- **Vector Store:** FAISS (Local) / Pinecone (Cloud)
+- **Vector Store:** FAISS (High-Performance Local)
 - **Frontend:** Streamlit
 - **DevOps:** Docker, GitHub Actions, Pytest
 
 ## 📈 Key Features
-- **Automated Ingestion:** Watcher-based PDF indexing.
+- **Automated Ingestion:** Streamlit-based On-demand Ingestion.
 - **Thought Tracing:** Full callback logging for LLM reasoning steps.
 - **Evaluation Suite:** Automated faithfulness and relevancy testing via `pytest`.
 

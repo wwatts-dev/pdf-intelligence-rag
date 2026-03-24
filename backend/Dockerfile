@@ -11,11 +11,11 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 
 # Copy only requirements first (Optimizes Docker layer caching)
-COPY requirements.txt .
+COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the application
-COPY . .
+# Copy the contents of the backend folder into /app
+COPY backend/ .
 
 # Expose the ports for FastAPI (8000) and Streamlit (8501)
 EXPOSE 8000

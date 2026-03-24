@@ -1,8 +1,10 @@
 # Ignore the heavy AI models (handled by volumes)
 ai_cache/
+backend/ai_cache/
 
 # Ignore the local vector database
 faiss_index/
+backend/faiss_index/
 vector_store/
 
 # Ignore data files

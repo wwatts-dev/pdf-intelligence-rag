@@ -1,24 +1,27 @@
 services:
   backend:
-    build: .
+    build:
+      context: .              # Start at the root (finds .dockerignore)
+      dockerfile: backend/Dockerfile  # Point to the Dockerfile
     container_name: rag-backend
     ports:
       - "8000:8000"
     env_file:
       - .env
     volumes:
-      - .:/app
-      # use a local relative path and rely on the Junction
+      - ./backend:/app
       - ./ai_cache:/root/.cache/huggingface
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
   frontend:
     build:
-      context: .
-      dockerfile: Dockerfile.frontend
+      context: .              # Start at the root (finds .dockerignore)
+      dockerfile: frontend/Dockerfile.frontend # Point to the Dockerfile
     container_name: rag-frontend
     ports:
       - "8501:8501"
+    volumes:
+      - ./frontend:/app
     environment:
       - BACKEND_URL=http://backend:8000
     depends_on:

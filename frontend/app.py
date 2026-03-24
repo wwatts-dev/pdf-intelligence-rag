@@ -21,6 +21,19 @@ with st.sidebar:
                     st.success("PDF processed and indexed!")
                 else:
                     st.error(f"Error: {response.json().get('detail')}")
+    # --- Sidebar: Clear Memory ---
+    st.divider()
+    if st.button("Clear Memory", type="primary"):
+        try:
+            response = requests.delete(f"{BACKEND_URL}/clear")
+            if response.status_code == 200:
+                st.session_state.messages = [] # Clear the chat UI
+                st.success("Memory cleared!")
+                st.rerun()
+            else:
+                st.error("Failed to clear backend memory.")
+        except Exception as e:
+            st.error(f"Connection Error: {str(e)}")
 
 # --- Main Interface: Chat ---
 st.subheader("Chat with your PDF")
@@ -49,9 +62,19 @@ if prompt := st.chat_input("Ask a question about your document..."):
                     json={"question": prompt}
                 )
                 
+                # Update app.py to show sources
                 if response.status_code == 200:
-                    answer = response.json().get("answer")
+                    data = response.json()
+                    answer = data.get("answer")
+                    sources = data.get("sources", [])
+
                     st.markdown(answer)
+
+                    # Show unique sources as clickable badges or captions
+                    if sources:
+                        unique_sources = list(set(sources))
+                        st.caption(f"Sources: {', '.join(unique_sources)}")
+
                     st.session_state.messages.append({"role": "assistant", "content": answer})
                 else:
                     error_msg = response.json().get("detail", "Unknown error")
