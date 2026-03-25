@@ -23,7 +23,8 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           # Added pytest-asyncio and anyio which are required for FastAPI async tests
-          pip install pytest pytest-asyncio anyio httpx fastapi groq pypdf langchain-huggingface langchain-community faiss-cpu python-dotenv python-multipart
+          # Fixed: added sentence-transformers and langchain to resolve the ImportError
+          pip install pytest pytest-asyncio anyio httpx fastapi groq pypdf langchain langchain-huggingface langchain-community sentence-transformers faiss-cpu python-dotenv python-multipart
           
       - name: Run Tests
         env:
@@ -31,4 +32,5 @@ jobs:
           # This ensures the runner sees the 'backend' folder as a package
           PYTHONPATH: ${{ github.workspace }}/backend
         run: |
+          ls -R  # This will show exactly where all project files are in the cloud
           pytest backend/tests/
