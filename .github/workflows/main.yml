@@ -31,6 +31,8 @@ jobs:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           # This ensures the runner sees the 'backend' folder as a package
           PYTHONPATH: ${{ github.workspace }}/backend
+          # Redirect HuggingFace cache to the current workspace
+          HF_HOME: ${{ github.workspace }}/backend/cache
         run: |
           ls -R  # This will show exactly where all project files are in the cloud
           pytest backend/tests/

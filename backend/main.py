@@ -18,7 +18,8 @@ load_dotenv()
 
 # Define the path within the container's persistent volume
 # This path is mapped within the local ./ai_cache folder via docker-compose
-INDEX_PATH = "/root/.cache/huggingface/faiss_index"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+INDEX_PATH = os.path.join(BASE_DIR, "faiss_index")
 
 # Create a simple schema for the request body
 class QueryRequest(BaseModel):
