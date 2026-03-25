@@ -25,5 +25,5 @@ This project implements a scalable pipeline to transform static PDF libraries in
 ## 🚦 Getting Started
 1. Clone the repo.
 2. Run `docker-compose up`.
-3. Access the **Frontend UI** at `localhost:8501`**.
+3. Access the **Frontend UI** at `localhost:8501`.
 4. Access the **API Documentation** at `localhost:8000/docs`.

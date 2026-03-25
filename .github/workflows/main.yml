@@ -10,21 +10,25 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      # Updated to v4 to fix the Node.js deprecation warning
+      - uses: actions/checkout@v4
       
+      # Updated to v5 to fix the Node.js deprecation warning
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
           
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
+          # Added pytest-asyncio and anyio which are required for FastAPI async tests
           pip install pytest pytest-asyncio anyio httpx fastapi groq pypdf langchain-huggingface langchain-community faiss-cpu python-dotenv python-multipart
           
       - name: Run Tests
         env:
-          # This maps the GitHub Secret to an environment variable the code can read
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          # This ensures the runner sees the 'backend' folder as a package
+          PYTHONPATH: ${{ github.workspace }}/backend
         run: |
           pytest backend/tests/
