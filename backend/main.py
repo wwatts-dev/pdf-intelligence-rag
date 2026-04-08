@@ -12,6 +12,8 @@ from langchain_core.documents import Document
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_core.messages import HumanMessage, AIMessage
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 
 # Load variables from .env
 load_dotenv()
@@ -24,6 +26,7 @@ INDEX_PATH = os.path.join(BASE_DIR, "faiss_index")
 # Create a simple schema for the request body
 class QueryRequest(BaseModel):
     question: str
+    session_id: str = "default_user"
 
 app = FastAPI(title="PDF Intelligence RAG Engine - Groq Edition")
 
@@ -34,6 +37,13 @@ client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 # Initialize HuggingFace for the "Memory/Math" part
 # This is the 100% free local model
 embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+
+# Global store for chat history
+# session_id -> list of messages
+# Note: Redis would be used instead of a 
+#   dictonary here for larger prod environments
+chat_histories = {}
+
 
 @app.get("/")
 async def root():
@@ -106,42 +116,80 @@ async def upload_pdf(file: UploadFile = File(...)):
 @app.post("/query")
 async def query_pdf(request: QueryRequest):
     try:
-        # 1. Use the helper to load from the persistent M: drive volume
-        vector_store = load_vector_store(embeddings)
+        # --- SESSION & MEMORY MANAGEMENT ---
+        # Access the "Memory" for this specific session. 
+        # This allows the backend to handle multiple users simultaneously.
+        history = get_session_history(request.session_id)
+        
+        # --- CONTEXTUAL RE-WRITING ---
+        # This is the "Intelligence" step. If there is history, we ask the LLM 
+        # to clarify follow-up questions (e.g., "Is that high?") into standalone search terms.
+        standalone_question = request.question
+        history_str = ""
+        
+        if history:
+            # We provide the AI with the last 5 exchanges to help it reason about intent
+            history_str = "\n".join([f"{m['role']}: {m['content']}" for m in history[-5:]])
+            rewrite_prompt = (
+                f"Given the following conversation history and a follow-up question, "
+                f"rephrase the follow-up question to be a standalone question that can be searched.\n\n"
+                f"History:\n{history_str}\n\n"
+                f"Follow-up: {request.question}\n"
+                f"Standalone Question:"
+            )
+            rewrite_resp = client.chat.completions.create(
+                model="llama-3.3-70b-versatile",
+                messages=[{"role": "user", "content": rewrite_prompt}]
+            )
+            standalone_question = rewrite_resp.choices[0].message.content
 
+        # --- RETRIEVAL ---
+        # Use the helper to load the index from the persistent mapped volume.
+        vector_store = load_vector_store(embeddings)
         if not vector_store:
             raise HTTPException(
                 status_code=400, 
                 detail="No PDF index found. Please upload a PDF first."
             )
 
-        # 2. Similarity Search
-        # Find the top 3 most relevant chunks of text from your PDF
-        docs = vector_store.similarity_search(request.question, k=3)
-        context = "\n".join([doc.page_content for doc in docs])
+        # Similarity Search: Find the top 3 most relevant chunks of text from your PDF.
+        # Note: We search using the 'standalone_question' to ensure the search is accurate.
+        docs = vector_store.similarity_search(standalone_question, k=3)
+        pdf_context = "\n".join([doc.page_content for doc in docs])
 
         # --- THOUGHT TRACING ---
-        # This allows you to see exactly what was retrieved in the terminal
-        print(f"--- RETRIEVED CONTEXT ---\n{context}\n------------------------")
+        # This allows you to see exactly what was retrieved in the Docker terminal
+        print(f"--- STANDALONE QUERY ---\n{standalone_question}")
+        print(f"--- RETRIEVED CONTEXT ---\n{pdf_context}\n------------------------")
 
-        # 3. Generate Answer via Groq
-        # Provide the AI with the 'Context' and ask it to answer the 'Question'
-        prompt = (
-            f"Use the following pieces of context to answer the question at the end.\n"
-            f"If you don't know the answer based on the context, just say you don't know.\n\n"
-            f"Context:\n{context}\n\n"
-            f"Question: {request.question}\n\n"
+        # --- FINAL GENERATION ---
+        # Provide the AI with the 'PDF Context', the 'Chat History', 
+        # and the current question to generate a grounded, natural response.
+        final_prompt = (
+            f"You are a helpful assistant. Use the PDF context and the chat history to answer.\n\n"
+            f"PDF Context:\n{pdf_context}\n\n"
+            f"Chat History:\n{history_str if history_str else 'No prior history.'}\n\n"
+            f"User's Question: {request.question}\n\n"
             f"Answer:"
         )
         
         completion = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
-            messages=[{"role": "user", "content": prompt}]
+            messages=[{"role": "user", "content": final_prompt}]
         )
+        answer = completion.choices[0].message.content
+
+        # --- MEMORY UPDATE ---
+        # Store the exchange as simple dictionaries to keep session history manageable.
+        # We limit this to the last 10 messages to maintain a relevant context window.
+        history.append({"role": "user", "content": request.question})
+        history.append({"role": "assistant", "content": answer})
+        chat_histories[request.session_id] = history[-10:]
 
         return {
-            "answer": completion.choices[0].message.content,
-            "sources": [doc.metadata.get("source", "Unknown") for doc in docs]
+            "answer": answer,
+            "sources": list(set([doc.metadata.get("source", "Unknown") for doc in docs])),
+            "standalone_query": standalone_question
         }
 
     except Exception as e:
@@ -169,3 +217,9 @@ def load_vector_store(embeddings):
         # Load the existing index from the volume
         return FAISS.load_local(INDEX_PATH, embeddings, allow_dangerous_deserialization=True)
     return None
+
+# --- IN-MEMORY STORE ---
+def get_session_history(session_id: str):
+    if session_id not in chat_histories:
+        chat_histories[session_id] = []
+    return chat_histories[session_id]

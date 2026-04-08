@@ -1,12 +1,22 @@
 import streamlit as st
 import requests
 import os
+import uuid  # Added for session management
 
 # Use the environment variable defined in docker-compose
 BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
 
 st.set_page_config(page_title="PDF Intelligence RAG", layout="wide")
 st.title("📄 PDF Intelligence RAG")
+
+# --- SESSION STATE INITIALIZATION ---
+# 1. Generate a unique ID for this user session if it doesn't exist
+if "session_id" not in st.session_state:
+    st.session_state.session_id = str(uuid.uuid4())
+
+# 2. Initialize chat history
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
 # --- Sidebar: Upload ---
 with st.sidebar:
@@ -21,13 +31,15 @@ with st.sidebar:
                     st.success("PDF processed and indexed!")
                 else:
                     st.error(f"Error: {response.json().get('detail')}")
-    # --- Sidebar: Clear Memory ---
+    
     st.divider()
+    # Updated Clear Memory to reset both the UI and the unique session ID
     if st.button("Clear Memory", type="primary"):
         try:
             response = requests.delete(f"{BACKEND_URL}/clear")
             if response.status_code == 200:
-                st.session_state.messages = [] # Clear the chat UI
+                st.session_state.messages = [] 
+                st.session_state.session_id = str(uuid.uuid4()) # New ID for a fresh start
                 st.success("Memory cleared!")
                 st.rerun()
             else:
@@ -38,10 +50,6 @@ with st.sidebar:
 # --- Main Interface: Chat ---
 st.subheader("Chat with your PDF")
 
-# Initialize chat history
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-
 # Display chat messages from history on app rerun
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
@@ -49,28 +57,33 @@ for message in st.session_state.messages:
 
 # React to user input
 if prompt := st.chat_input("Ask a question about your document..."):
-    # Display user message in chat message container
     st.chat_message("user").markdown(prompt)
     st.session_state.messages.append({"role": "user", "content": prompt})
 
     with st.chat_message("assistant"):
         with st.spinner("Thinking..."):
             try:
-                # Call the new /query endpoint
+                # CRITICAL UPDATE: Sending both question AND session_id
+                payload = {
+                    "question": prompt,
+                    "session_id": st.session_state.session_id
+                }
+                
                 response = requests.post(
                     f"{BACKEND_URL}/query", 
-                    json={"question": prompt}
+                    json=payload
                 )
                 
-                # Update app.py to show sources
                 if response.status_code == 200:
                     data = response.json()
                     answer = data.get("answer")
                     sources = data.get("sources", [])
+                    
+                    # Optional: Access the standalone_query to see how the AI rephrased the follow-up
+                    # print(f"AI Search Query: {data.get('standalone_query')}")
 
                     st.markdown(answer)
 
-                    # Show unique sources as clickable badges or captions
                     if sources:
                         unique_sources = list(set(sources))
                         st.caption(f"Sources: {', '.join(unique_sources)}")

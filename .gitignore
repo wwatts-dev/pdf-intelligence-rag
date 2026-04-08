@@ -207,7 +207,10 @@ marimo/_lsp/
 __marimo__/
 
 # --- AI & RAG SPECIFIC ---
-**ai_cache/           # Local model cache (HuggingFace models)
+ai_cache/           # Local model cache (HuggingFace models)
+**ai_cache/
+backend/ai_cache/
+backend/faiss_index/
 **faiss_index/        # Generated Vector Database (FAISS index)
 **vector_store/       # Ignore local FAISS/Chroma indexes (rebuildable)
 data/               # Ignore raw PDF folders (usually too big for Git)
