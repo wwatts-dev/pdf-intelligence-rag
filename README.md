@@ -1,13 +1,14 @@
 # pdf-intelligence-rag
 
-[![CI/CD Pipeline](https://github.com/wwatts-dev/pdf-intelligence-rag/actions/workflows/main.yml/badge.svg)](https://github.com/yourusername/pdf-intelligence-rag/actions)
+[![CI/CD Pipeline](https://github.com/wwatts-dev/pdf-intelligence-rag/actions/workflows/main.yml/badge.svg)](https://github.com/wwatts-dev/pdf-intelligence-rag/actions)
 
 An automated RAG (Retrieval-Augmented Generation) engine designed for high-accuracy document intelligence.
 
 ## 🚀 Overview
-This project implements a scalable pipeline to transform static PDF libraries into a searchable, interactive knowledge base. Unlike simple wrappers, this engine focuses on **retrieval accuracy** and **automated evaluation**.
-* **Hybrid architecture**: This project uses **Groq** for high-speed inference and local **HuggingFace** embeddings for cost-effective, private data processing.
-* **Setup & Infrastructure**: This project is configured to offload heavy AI model weights and Docker VHDX files to secondary storage (M: drive) to maintain system drive performance. (**Note**: This app will also work on devices without a secondary drive.)
+This project implements a scalable pipeline to transform static PDF libraries into a searchable, interactive knowledge base. Unlike simple RAG wrappers, this engine focuses on **conversational continuity** and **architectural hygiene**, ensuring that complex document queries are handled with high precision and stateful awareness.
+
+* **Hybrid architecture**: Leverages **Groq** for high-speed response generation and local **HuggingFace** embeddings for private data processing.
+* **Performance-First Infrastructure**: Architected to offload heavy AI model weights and Docker VHDX files to secondary storage (such as "M: drive"), optimizing system drive longevity. (**Note**: This app will also work exactly the same way on devices without a secondary drive.)
 * **Docker** is required to run this project.
 
 ## 🛠️ Tech Stack
@@ -18,9 +19,11 @@ This project implements a scalable pipeline to transform static PDF libraries in
 - **DevOps:** Docker, GitHub Actions, Pytest
 
 ## 📈 Key Features
-- **Automated Ingestion:** Streamlit-based On-demand Ingestion.
-- **Thought Tracing:** Full callback logging for LLM reasoning steps.
-- **Evaluation Suite:** Automated faithfulness and relevancy testing via `pytest`.
+- **Stateful Conversational Memory:** Manages multi-turn dialogues via session-based UUIDs, enabling the system to resolve ambiguous follow-up questions. (e.g., "Was it higher than the month before?").
+- **Contextual Query Re-writing:** Utilizes an LLM-driven standalone query generator to maintain retrieval relevance across chat history.
+- **Automated Evaluation Suite:** Integrated `pytest` framework that validates faithfulness, relevancy, and the stateful logic of the conversational flow.
+- **Thought Tracing:** Provides full callback logging for transparency into the LLM’s reasoning steps during the RAG process.
+- **On-Demand Ingestion:** Streamlit-based UI for seamless document uploads and FAISS vector index creation.
 
 ## 🚦 Getting Started
 1. Clone the repo.
