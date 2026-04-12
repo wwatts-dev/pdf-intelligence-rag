@@ -1,0 +1,29 @@
+name: 📖 Documentation Improvement
+description: Fix typos or clarify the Docker/RAG setup guide
+title: "[Docs]: "
+labels: ["documentation", "good first issue"]
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: Which part of the docs needs help?
+      options:
+        - 🛠️ Docker Compose / Environment Setup
+        - 🔑 API Key / Groq Configuration
+        - 🎥 Project Demo Video
+        - 📘 Typos / Grammar
+    validations:
+      required: true
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: What should be improved?
+      placeholder: "The instructions for the Docker port mapping (8501:8501) are unclear..."
+    validations:
+      required: true
+  - type: textarea
+    id: proposed-fix
+    attributes:
+      label: Proposed Change
+      description: If you have a fix, paste the Markdown here.
+      render: markdown

@@ -1,0 +1,53 @@
+name: 🐛 Bug Report
+description: Report a bug in the RAG pipeline or Docker setup
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! Please ensure your Groq API key is valid before reporting "Connection" errors.
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: How did you trigger the error?
+      placeholder: |
+        1. Run 'docker-compose up'
+        2. Upload 'empsit.pdf' to Streamlit UI
+        3. Click 'Process PDF'
+        4. See error in FastAPI logs
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Host Operating System
+      options:
+        - Windows (WSL2)
+        - macOS (Apple Silicon)
+        - macOS (Intel)
+        - Linux (Ubuntu/Debian)
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: RAG & Docker Context
+      description: Which PDF was used? Are you using the provided Docker Compose?
+      placeholder: "e.g., 50-page PDF, Docker Desktop v4.28, Groq Llama-3-70b"
+  - type: textarea
+    id: logs
+    attributes:
+      label: Terminal/Container Logs
+      description: Please paste the output from 'docker logs pdf-intelligence-rag'.
+      render: shell
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Bug Submission Checklist
+      options:
+        - label: I have verified my .env file contains a valid GROQ_API_KEY.
+          required: true
+        - label: I have searched existing issues to ensure this isn't a duplicate.
+          required: true

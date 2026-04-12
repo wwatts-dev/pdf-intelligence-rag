@@ -1,0 +1,36 @@
+name: 🚀 Feature Request
+description: Suggest a new capability for the RAG stack
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: dropdown
+    id: category
+    attributes:
+      label: What part of the stack is this for?
+      options:
+        - 📄 PDF Parsing / Chunking Logic
+        - 🧠 Embeddings (HuggingFace Local)
+        - ⚡ Inference (Groq/LLM support)
+        - 🎨 Streamlit UI Improvements
+        - 🔗 FastAPI Backend / API Endpoints
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the feature
+      description: What should the app do that it doesn't do now?
+      placeholder: "I would like to support multi-modal models or different vector stores like Qdrant..."
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why is this needed?
+      description: What use case does this enable?
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution
+      options:
+        - label: I am willing to submit a PR to implement this!
