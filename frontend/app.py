@@ -9,6 +9,50 @@ BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
 st.set_page_config(page_title="PDF Intelligence RAG", layout="wide")
 st.title("📄 PDF Intelligence RAG")
 
+# --- ACCESSIBILITY STYLING ---
+# Targeting the 'Process PDF' button specifically while ensuring 
+# color-blind friendly contrast.
+st.markdown("""
+    <style>
+    /* Base styling for both action buttons */
+    div.st-key-process_btn button, div.st-key-clear_btn button {
+        border-radius: 8px !important;
+        border: 1px solid rgba(0,0,0,0.1) !important;
+        transition: all 0.2s ease !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
+    }
+
+    /* Process PDF: Professional Cobalt */
+    div.st-key-process_btn button {
+        background-color: #007BFF !important;
+        color: white !important;
+        height: 3.5em !important;
+    }
+    div.st-key-process_btn button:hover {
+        background-color: #0056b3 !important;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
+        transform: translateY(-1px);
+    }
+
+    /* Clear Memory: Muted Deep Orange (Accessible & Less Jarring) */
+    div.st-key-clear_btn button {
+        background-color: #fdf2f0 !important; /* Very light tint */
+        color: #D35400 !important; /* Deep orange text */
+        border: 1px solid #D35400 !important;
+    }
+    div.st-key-clear_btn button:hover {
+        background-color: #D35400 !important;
+        color: white !important;
+    }
+
+    /* Text Formatting */
+    div.st-key-process_btn button p, div.st-key-clear_btn button p {
+        font-weight: 600 !important;
+        letter-spacing: 0.5px !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
 # --- SESSION STATE INITIALIZATION ---
 # 1. Generate a unique ID for this user session if it doesn't exist
 if "session_id" not in st.session_state:
@@ -22,7 +66,8 @@ if "messages" not in st.session_state:
 with st.sidebar:
     st.header("Upload Document...")
     uploaded_file = st.file_uploader("Choose a PDF file", type="pdf")
-    if st.button("Process PDF"):
+    
+    if st.button(":material/sync: Process PDF", key="process_btn", use_container_width=True):
         if uploaded_file:
             with st.spinner("Analyzing PDF..."):
                 files = {"file": (uploaded_file.name, uploaded_file.getvalue(), "application/pdf")}
@@ -34,7 +79,7 @@ with st.sidebar:
     
     st.divider()
     # Updated Clear Memory to reset both the UI and the unique session ID
-    if st.button("Clear Memory", type="primary"):
+    if st.button(":material/delete: Clear Memory", key="clear_btn", use_container_width=True):
         try:
             response = requests.delete(f"{BACKEND_URL}/clear")
             if response.status_code == 200:
