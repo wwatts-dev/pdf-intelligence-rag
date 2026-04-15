@@ -5,34 +5,37 @@
 An automated RAG (Retrieval-Augmented Generation) engine designed for high-accuracy document intelligence.
 
 ## 🚀 Overview
-This project implements a scalable pipeline to transform static PDF libraries into a searchable, interactive knowledge base. Unlike simple RAG wrappers, this engine focuses on **conversational continuity** and **architectural hygiene**, ensuring that complex document queries are handled with high precision and stateful awareness.
+This project implements a scalable **RAG (Retrieval-Augmented Generation)** pipeline to transform static PDF libraries into a searchable, interactive knowledge base. Architected as a bridge between **Scalable Backend Infrastructure** and **Modern AI Orchestration**, this engine goes beyond simple wrappers to focus on **conversational continuity** and **architectural hygiene**.
 
-* **Hybrid architecture**: Leverages **Groq** for high-speed response generation and local **HuggingFace** embeddings for private data processing.
-* **Performance-First Infrastructure**: Architected to offload heavy AI model weights and Docker VHDX files to secondary storage (such as "M: drive"), optimizing system drive longevity. (**Note**: This app will also work exactly the same way on devices without a secondary drive.)
-* **Docker** is required to run this project.
+By leveraging **LangChain** and **FastAPI**, the system solves the technical challenges of stateful AI interactions, ensuring that complex document queries are handled with high precision and local embedding optimization.
+
+* **Hybrid AI Architecture**: Leverages **Groq** for high-speed **LLM inference** and local **HuggingFace** embeddings for secure, private data processing.
+* **Performance-Optimized Infrastructure**: Architected to manage heavy **Model Weights** and Docker VHDX files to secondary storage (e.g., "M: drive"), demonstrating an understanding of system-level resource management. (**Note**: Fully compatible with single-drive configurations.)
+* **Containerized Environment**: Fully orchestrated via **Docker** to ensure reproducible builds across different development environments.
 
 ## 🎥 Project Demo
 
 
 ## 💻 Tech Stack
-- **Orchestration:** LangChain
-- **API Framework:** FastAPI
-- **Vector Store:** FAISS (High-Performance Local)
-- **Frontend:** Streamlit
-- **DevOps:** Docker, GitHub Actions, Pytest
+- **AI Orchestration**: LangChain (RAG, Memory, Chain-of-Thought)
+- **Inference & Models**: Groq (Llama 3 / Mixtral), HuggingFace Transformers (Local Embeddings)
+- **Vector Database**: FAISS (High-Performance Semantic Search)
+- **Backend & API**: FastAPI (Asynchronous Python)
+- **Frontend**: Streamlit (Conversational AI UI)
+- **DevOps & QA**: Docker, GitHub Actions, Pytest (Automated Evaluation)
 
 ## 📈 Key Features
-- **Stateful Conversational Memory:** Manages multi-turn dialogues via session-based UUIDs, enabling the system to resolve ambiguous follow-up questions. (e.g., "Was it higher than the month before?").
-- **Contextual Query Re-writing:** Utilizes an LLM-driven standalone query generator to maintain retrieval relevance across chat history.
-- **Automated Evaluation Suite:** Integrated `pytest` framework that validates faithfulness, relevancy, and the stateful logic of the conversational flow.
-- **Thought Tracing:** Provides full callback logging for transparency into the LLM’s reasoning steps during the RAG process.
-- **On-Demand Ingestion:** Streamlit-based UI for seamless document uploads and FAISS vector index creation.
+- **Stateful Conversational AI**: Manages multi-turn dialogues via session-based UUIDs, resolving ambiguous follow-up queries. (e.g., _"Was it higher than the month before?"_).
+- **Contextual Query Expansion (NLU)**: Utilizes an LLM-driven standalone query generator to maintain **Natural Language Understanding** and retrieval relevance across chat history.
+- **Automated RAG Evaluation**: Integrated `pytest` framework that validates **faithfulness, relevancy, and the stateful logic** to ensure high-precision Generative AI responses.
+- **Chain-of-Thought Tracing**: Provides full callback logging for transparency into the LLM’s reasoning steps during the retrieval process.
+- **On-Demand Vector Ingestion**: Streamlit-based UI for real-time PDF parsing, semantic chunking, and FAISS vector index creation.
 
 ---
 
 ## 🚦 Quick Start
 1. **Clone**: `git clone https://github.com/wwatts-dev/pdf-intelligence-rag.git`
-2. **Env**: Add `GROQ_API_KEY` to a `.env` file.
+2. **Env**: Add `GROQ_API_KEY` to a `.env` file _with a generated Groq API key_.
 3. **Run**: `docker-compose up --build`
 4. **Open**: `localhost:8501`
 
@@ -46,7 +49,7 @@ This project implements a scalable pipeline to transform static PDF libraries in
 > [!Tip]
 > _To verify installation of Git, you can always open PowerShell and run `git --version` to confirm it is installed correctly._
 
-* **Docker Desktop**: Required to run the containerized application stack. Download the AMD64 version from the [official Docker site](https://www.docker.com/).
+* **Docker Desktop**: Required to run the containerized application stack. Download the AMD64 version (for Windows PCs) or one of the other versions that corresponds with your OS from the [official Docker site](https://www.docker.com/).
 > [!Note]
 > _If installing Docker Desktop for the first time, and asked to choose between installing WSL (Windows Subsystem for Linux) or Hyper-V, choosing WSL 2 is the most 'modern' option recommended for the best experience. Since Docker containers are inherently Linux-based, WSL allows you to run Linux-native tools (like Bash and git) alongside Windows applications such as Visual Studio Code._
 
@@ -103,6 +106,12 @@ This project implements a scalable pipeline to transform static PDF libraries in
 
 ## 🛠️ Troubleshooting
 
+### 🔑 Missing API Credentials
+If you receive a `Backend Error: Internal Server Error: Connection error` error when pressing the **Process PDF** button, it is likely due to an issue with a missing or invalid setup with your Groq API key.
+* **The Fix**: Ensure your `.env` file contains `GROQ_API_KEY=your_key_here`.
+> [!Important]
+> _The application requires a valid Groq API key to generate responses. If you haven't already created a Groq account you'll need to login or create one to access the Groq console to obtain your Groq API key necessary to run this project._
+
 ### ⚠️ Connection Error (Errno 111)
 If you encounter a `Connection refused` error when clicking **Process PDF**, it is likely due to a service startup race condition.
 
@@ -127,7 +136,3 @@ To verify if the backend has finished initializing or to debug crashes between s
     ```bash
     docker-compose logs backend > backend_debug_log.txt
     ```
-
-### 🔑 Missing API Credentials
-The application requires a valid Groq API key to generate responses.
-* **The Fix**: Ensure your `.env` file contains `GROQ_API_KEY=your_key_here`.

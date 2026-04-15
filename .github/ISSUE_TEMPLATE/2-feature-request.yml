@@ -13,6 +13,7 @@ body:
         - ⚡ Inference (Groq/LLM support)
         - 🎨 Streamlit UI Improvements
         - 🔗 FastAPI Backend / API Endpoints
+        - ❓ Other / Option Not Listed Here
     validations:
       required: true
   - type: textarea
