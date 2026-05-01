@@ -13,8 +13,8 @@ By leveraging **LangChain** and **FastAPI**, the system solves the technical cha
 * **Performance-Optimized Infrastructure**: Architected to manage heavy **Model Weights** and Docker VHDX files to secondary storage (e.g., "M: drive"), demonstrating an understanding of system-level resource management. (**Note**: Fully compatible with single-drive configurations.)
 * **Containerized Environment**: Fully orchestrated via **Docker** to ensure reproducible builds across different development environments.
 
-## 🎥 Project Demo
-
+## 📸 Demo Preview
+![Screenshot of multi-turn chat summarizing and comparing BLS employment data](images/pdf-intelligence-rag-demo.png)
 
 ## 💻 Tech Stack
 - **AI Orchestration**: LangChain (RAG, Memory, Chain-of-Thought)
